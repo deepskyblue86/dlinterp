@@ -1,19 +1,15 @@
 use std::io::Write;
 
 fn main() {
-    let param: Vec<String> = std::env::args().collect();
+    let filename = match std::env::args().nth(1) {
+        Some(arg) => arg,
+        None => {
+            eprintln!("Missing argument");
+            std::process::exit(1)
+        }
+    };
 
-    if param.len() < 2 {
-        println!("Missing argument");
-        std::process::exit(1);
-    }
-    let param = &param[1];
-
-    let file: elf::File;
-    {
-        let path = std::path::PathBuf::from(param);
-        file = elf::File::open_path(&path).unwrap_or_else(|e| panic!("Error: {:?}", e));
-    }
+    let file = elf::File::open_path(filename).unwrap();
 
     let data = file
         .get_section(".interp")
